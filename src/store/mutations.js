@@ -7,6 +7,8 @@ import {BANK_CODE,USER_ID,BANKCARDS,RECEIVALLIST,PROFITLIST,WITHDRAWLIST,
   BALANCE,
   WITHDRAW,
   LOGOUT,
+  PAYINFO
+
 } from './mutation-types.js'
 
 export default{
@@ -59,6 +61,19 @@ export default{
   },
   [LOGOUT](state, result){
     state.user_id = null;
+  },
+  payInfo(state,result){
+    console.log('mutations result'+result)
+    state.payinfo = {
+      pmtChnlType:result.pmtChnlType,//支付类型
+      siteChnlId:result.siteChnlId,//站点ID
+      amount:result.amount,//支付金额
+      havaSMS:result.havaSMS
+    }
+    console.log('state.payinfo'+state.payinfo)
+  },
+  BANKCARDID(state,id){
+    state.ccBankCardId = id;
   }
 
 }

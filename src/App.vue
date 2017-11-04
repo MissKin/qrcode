@@ -19,8 +19,11 @@
   }
 </script>
 <style scoped>
+  @import './common/style/reset.css';
   @import './common/style/base.css';
+  @import './common/style/swiper.min.css';
   @import './common/style/font.css';
+  @import './common/style/returncard.css';
   #app { height: 100%; }
   .route-fade-enter-active,.route-fade-leave-active{
     transition: opacity 0.3s
@@ -66,30 +69,7 @@
     background-repeat: no-repeat;
     background-position-x: center;
   }
-  .wallet-icon{
-    background-image: url('./assets/nav-wallet.png');
-  }
-  .router-link-active .wallet-icon{
-    background-image: url('./assets/active-wallet.png');
-  }
-  .share-icon{
-    background-image: url('./assets/nav-share.png');
-  }
-  .router-link-active .share-icon{
-    background-image: url('./assets/active-share.png');
-  }
-  .message-icon{
-    background-image: url('./assets/nav-message.png');
-  }
-  .router-link-active .message-icon{
-    background-image: url('./assets/active-message.png');
-  }
-  .user-icon{
-    background-image: url('./assets/nav-user.png');
-  }
-  .router-link-active .user-icon{
-    background-image: url('./assets/active-user.png');
-  }
+
   .router-link-active .text{
     color: #42D95E;
   }

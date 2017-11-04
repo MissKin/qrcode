@@ -41,12 +41,14 @@ const profit =r => require.ensure([], () => r(require('pages/bill/profit')), 'pr
 const withdraw =r => require.ensure([], () => r(require('pages/bill/withdraw')), 'withdraw')
 const fee =r => require.ensure([], () => r(require('pages/fee/fee')), 'fee')
 
-
+const returnMine =r => require.ensure([], ()=> r(require('pages/returnCard/mineReturnCard')),'returnMine')
+const creditDetail = r => require.ensure([], ()=> r(require('pages/returnCard/creditDetail')),'creditDetail')
 Vue.use(Router)
 
 export default new Router({
   linkActiveClass:'router-active',
   mode:'history',
+  base:'/qrcode/',
   routes: [
     {
       path:'/',
@@ -68,7 +70,7 @@ export default new Router({
       path:'/register',
       component: register
     },
-        {
+    {
           // /home/wallet
           path:'/wallet',
           component:wallet,
@@ -88,38 +90,38 @@ export default new Router({
             }
           ]
         },
-        { //  /home/share
+    { //  /home/share
           path:'/share',
           component:share,
         },
-        {//  /home/user
+    {//  /home/user
           path:"/user",
           component:user,
-          children:[
-            {
-              path: 'personal',
-              component: personal
-            },
-            {
-              path:'uploadPhoto',
-              component:UploadPhoto
-            },
-            {
-              path:'changePwd',
-              component:changePwd
-            },
-            {
-              name:'bankcards',
-              path:'bankcards',
-              component:bankcards,
-              meta:{keepAlive: true}
-            },{
-              name:'bankcardsadd',
-              path:'bankcardsadd',
-              component:bankcardsadd
 
-            }
-          ]
+        },
+        {
+          path: '/personal',
+          component: personal
+        },
+        {
+          path:'uploadPhoto',
+          component:UploadPhoto
+        },
+        {
+          path:'/changePwd',
+          component:changePwd
+        },
+        {
+          name:'bankcards',
+          path:'/bankcards',
+          component:bankcards,
+          meta:{keepAlive: true}
+        },
+        {
+          name:'bankcardsadd',
+          path:'/bankcardsadd',
+          component:bankcardsadd
+
         },
         {//  /home/message
           path:"/message",
@@ -211,6 +213,15 @@ export default new Router({
     {
       path:'/NameAuthentication',
       component:NameAuthentication,
+    },
+    {
+      name:'returnMine',
+      path:'/returnMine',
+      component:returnMine,
+    },
+    {
+      path:'/creditDetail',
+      component:creditDetail
     }
 
   ]

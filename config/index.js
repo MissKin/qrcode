@@ -19,7 +19,16 @@ module.exports = {
     // View the bundle analyzer report after build finishes:
     // `npm run build --report`
     // Set to `true` or `false` to always turn it on or off
-    bundleAnalyzerReport: process.env.npm_config_report
+    bundleAnalyzerReport: process.env.npm_config_report,
+    proxyTable: {
+      '/qrpay.open':{
+        target:'http://wallet.wallet:8080/qrpay.open',
+        changeOrigin:true,
+        pathRewrite:{
+          '^/qrpay.open':''
+        }
+      }
+    }
   },
   dev: {
     env: require('./dev.env'),
@@ -29,10 +38,11 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
      '/qrpay.open':{
-       target:'http://wallet.wallet:8080/qrpay.open',
+       target:'https://product.willpayment.com',
        changeOrigin:true,
+       secure: false,
        pathRewrite:{
-         '^/qrpay.open':''
+         '^/qrpay.open':'/qrpay.open'
        }
      }
     },

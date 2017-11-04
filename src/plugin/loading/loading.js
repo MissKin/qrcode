@@ -1,0 +1,51 @@
+import Loading from './loading.vue'
+
+export default{
+  /**
+  *每个插件都有install方法, 用于安装插件
+   * @params{Object} Vue - Vue 类
+   * @params {Object} [pluginOptions] -插件安装配置
+  * */
+  install(Vue, pluginOptions={}){
+    //创建'子类' 方便挂载
+    const VueLoading = Vue.extend(Loading);
+    let loading = null;
+    /*
+    * 初始化并显示loading
+    * @return{Promise} 返回Promise实例
+    * */
+    function $loading(){
+      return new Promise((resolve) => {
+      //第一次调用
+      if(!loading){
+        //手动创建一个未挂载的实例
+        loading = new VueLoading();
+        loading.$mount()
+        //挂载
+        document.querySelector(pluginOptions.container || 'body').appendChild(loading.$el)
+      }
+      //显示
+      loading.show();
+      resolve()
+     })
+    }
+    //关闭loading方法
+    $loading.end = (noAnimate = false)=> {
+      return new Promise( (resolve) => {
+        if(!loading || !loading.isShow){
+          resolve()
+          return
+        }
+        //判断是否在关闭时需要动画
+        if(noAnimate){
+          //默认只在此次行为下移除动画,之后的动画任由动画
+          loading.removeAnimate().then( () => {
+            loading.openAnimate()
+          })
+        }
+        loading.hide();
+      })
+    }
+    Vue.loading = Vue.prototype.$loading = $loading;
+  }
+}

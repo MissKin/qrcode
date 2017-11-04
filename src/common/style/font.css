@@ -2,9 +2,15 @@
   font-family: 'icomoon';
   src:  url('../fonts/icomoon.eot?t3c8fl');
   src:  url('../fonts/icomoon.eot?t3c8fl#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon.ttf?t3c8fl') format('truetype'),
-    url('../fonts/icomoon.woff?t3c8fl') format('woff'),
-    url('../fonts/icomoon.svg?t3c8fl#icomoon') format('svg');
+  url('../fonts/icomoon.ttf?t3c8fl') format('truetype'),
+  url('../fonts/icomoon.woff?t3c8fl') format('woff'),
+  url('../fonts/icomoon.svg?t3c8fl#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face{
+  font-family: 'dine';
+  src:url('../fonts/DINEngschrift-Alternate.otf');
   font-weight: normal;
   font-style: normal;
 }

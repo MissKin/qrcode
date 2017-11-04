@@ -1,15 +1,15 @@
 /**
  * Created by Administrator on 2017/8/24 0024.
  */
-
-const LOGIN='/qrpay.open/mch/login'; //登录
+const ctx = 'http://wallet.wallet:8080';//域名
+const LOGIN=ctx+'/qrpay.open/mch/login'; //登录
 const CHECK_PHONE ='/qrpay.open/mch/check_phone';   //检测手机号是否注册
 const GET_CHECK_CODE='/qrpay.open/mch/get_check_code';//获取验证码
 const REGISTER = '/qrpay.open/mch/register'; //商户注册
 const LOGOUT = '/qrpay.open/mch/logout';    //退出
 const FORGET_MODIFY_PASSWORD='/qrpay.open/mch/forget_modify_password'; // 找回密码
 const TO_IDENTIFY = '/qrpay.open/mch/to_identify'; // 跳转至实名认证
-const GET_BANK = '/qrpay.open/mch/get_bank'; //获取银行信息
+const GET_BANK = '/qrpay.open/mch/get_bank?v='+new Date().getTime(); //获取银行信息
 const GET_CNAPS_BANK = '/qrpay.open/mch/get_cnaps_bank';//获取支行信息
 const SAVE_SETTLE_BANK_CARD = '/qrpay.open/mch/save_settle_bank_card';//保存结算卡（新增，修改）
 const SITE_PMT_CHNL_LIST='/qrpay.open/site_pmt_chnl/site_pmt_chnl_list';//获取通道列表
@@ -30,7 +30,15 @@ export function register(context,data) {
 }
 
 export  function logout(context) {
-  return context.$http.post(LOGOUT)
+  context.$http.get('/qrpay.open/mch/logout')
+      .then( res => {
+        let result = res.data.result;
+        if(result){
+          alert('退出成功');
+          this.$store.state.user_id = null;
+          this.$router.push('/login');
+        }
+      })
 }
 
 export function forget_modify_password(context,data) {

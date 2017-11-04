@@ -16,9 +16,9 @@
         </router-link>
       </div>
       <div class="item-icon-ul">
-        <router-link tag="a" to="/fee" class="item-icon border-right border-bottom">
+        <router-link tag="a" to="/returnMine" class="item-icon border-right border-bottom">
           <div class="item-icon-img wdfl"></div>
-          <span class="text">我的费率</span>
+          <span class="text">乐享还呗</span>
         </router-link>
         <router-link tag="a" to="/qrcode"  class="item-icon border-right border-bottom" >
           <div class="item-icon-img wdtjm"></div>
@@ -127,7 +127,15 @@
       console.log('onSlideChangeEnd', currentPage);
     },
     logout(){
-      this.$store.dispatch('LOGOUT')
+      this.axios.get('/qrpay.open/mch/logout')
+        .then( res => {
+          let result = res.data.result;
+          if(result){
+            alert('退出成功');
+            this.$store.state.user_id = null;
+            this.$router.push('/login');
+          }
+        })
     }
   },
   created(){
@@ -137,7 +145,6 @@
       autoplay:3000,
       pagination : '.swiper-pagination',
     })
-
   },
   computed:{
     swiper() {
@@ -147,6 +154,7 @@
   mouted(){
     //这边就可以使用swiper这个对象去使用swiper官网中的那些方法
     this.swiper.slideTo(0, 0, false);
+
   },
   components:{
     vueSwiper

@@ -183,6 +183,7 @@
     transform: translate(-50%, -50%);
     padding: 4.5%;
     text-align: center;
+    font-size:14px;
   }
   .withdraw-pop-content .btn-cancel{
     position:absolute;

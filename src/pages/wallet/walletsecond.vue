@@ -4,9 +4,10 @@
       <div class="paymoney-wrapper">
         <p class="text">请输入收款金额：</p>
         <div class="moneyInput">
-          <div class="show-money show-active" id="money"></div>
+          <div class="show-money show-active" id="money" >{{money}}</div>
         </div>
       </div>
+
       <div class="keyboard">
           <ul class="keyboard-ul" @click="getNum($event)">
             <li class="pressed num"  data-value="1">1</li>
@@ -34,51 +35,56 @@ export default {
   name: 'walletsecond',
   data () {
     return {
-      notzero:false
+      money:'',//支付金额
+      payType:'KJ'//支付类型
+    }
+  },
+  computed:{
+    notzero(){
+      if(this.money > 0){
+        return true;
+      }else{
+        return false;
+      }
     }
   },
   methods:{
     getNum(e){
      if(e.target.className.indexOf('num') > -1){
        var value = $(e.target).data('value');
-       var html = $('.show-money').html();
-          if(parseInt(html+value) > 9999999){
-            return;
-          }
-       $('#money').html($('#money').html() + String(value));
-       if($('.show-money').html().length > 0){
-         this.notzero = true;
-       }else{
-         this.notzero = false;
-       }
+            if(parseInt(this.money) > 9999999){
+              return;
+            }
+       this.money = this.money + String(value);
      }
 
     },
     deleteNum(){
-      var html = $('.show-money').html();
-     $('#money').html( html.substr(0,html.length-1));
-      if($('.show-money').html().length > 0){
-        this.notzero = true;
-      }else{
-        this.notzero = false;
+      if(this.money >0){
+        this.money = this.money.substr(0,parseInt(this.money.length)-1);
       }
     },
     addDot(){
-      var html = $('.show-money').html();
-      if(html== " "){html = '0'+'.'}
-      if(html.split('').indexOf('.') > -1){
-        var x =html.split('.'),y;
-        if(x[1] * 1 >0){
-          var k = x[1];
-          y = k.substring(0,2);
-          $('.show-money').html(x[0]+ '0' + y);
-        }
+      if(this.money == ""){
+        this.money = '0'+'.';
       }
-      if(html.split('').indexOf('.') > -1 || html == '' || parseInt(html)>9999999 ) return
-      $('.show-money').html(html + '.')
+      if(this.money.indexOf('.') > -1){
+        let x = this.money.split('.'),y;
+        console.log(x[0]);
+        if(x[1] * 1 > 0){
+          let k = x[1];
+          y = k.substr(0,2);
+          this.money = x[0]+'.'+y
+        }
+        return;
+      }
+      if( this.money.indexOf('.') > -1 || this.money == '' || parseInt(this.money) > 9999999) return;
+      this.money = this.money + '.';
+      console.log(this.money)
     },
     pay(){
-      this.$router.push('/paydetail');
+      console.log()
+      this.$router.push({path:'/paydetail',query:{amount: this.money,payType:this.payType}});
     }
   }
 }

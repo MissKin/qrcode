@@ -14,5 +14,6 @@ export const ENDDATE='endDate'
 export const BALANCE='balance'
 export const  WITHDRAW='withdraw'
 export const  LOGOUT='logout'
+export const PAYINFO = 'payinfo'
 
 

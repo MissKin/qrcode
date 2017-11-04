@@ -1,7 +1,7 @@
 /**
  * @author Auroral on 2017/9/13 0013.
  */
-import {RECEIVALLIST,PROFITLIST,WITHDRAWLIST,BALANCE,WITHDRAW,LOGOUT} from './mutation-types'
+import {RECEIVALLIST,PROFITLIST,WITHDRAWLIST,BALANCE,WITHDRAW,LOGOUT,PAYINFO} from './mutation-types'
 import axios from 'axios'
 export default {
   asyncBankcards(context){
@@ -20,6 +20,7 @@ export default {
   GET_PARTNERS(context,params){
     axios.get('/qrpay.open/mch/show_partner',{params:{currentPage:params}})
       .then( response => {
+
         console.log(response.data.result);
         context.commit('SET_PARTNERS',{list:response.data.result})
       }).catch(err => {
@@ -30,11 +31,12 @@ export default {
   GET_RECEVAL(context,params){
     axios.get('/qrpay.open/mch_trade/trade_list',{params:{params}})
       .then( res => {
+        let mess = res.data.message;
+        console.log(res.data.message);
         let list = res.data.result;
-        context.commit(RECEIVALLIST,{list})
-      }).catch( err => {
-        console.log(err)
-    })
+        context.commit(RECEIVALLIST, {list})
+
+      })
   },
   //账单-利润列表
   GET_PROFIT(context,params){
@@ -99,9 +101,14 @@ export default {
         let result = res.data.result;
         if(result){
           alert('退出成功');
-          context.commit(LOGOUT)
-          this.$router.push('/login');
+          context.commit(LOGOUT);
+          console.log(this.$router);
+          this.$router.redirect('/login');
         }
       })
+  },
+  //支付金额
+  PAY_AMOUNT(context){
+
   }
 }

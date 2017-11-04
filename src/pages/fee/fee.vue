@@ -5,22 +5,22 @@
       <div class="inner-content weixin-content" v-for="item in feeList">
         <div class=" rate-head">
           <div class="pay-img">
-            <img :src="item.img" alt="">
+            <!--<img :src="item.img" alt="">-->
           </div>
-          {{item.explain}}
+          {{item.pmtChnlName}}
         </div>
         <div class="rate-box">
           <div class="rate-item">
             <p class="rate-title">费率</p>
-            <p class="rate-content">{{item.rate}}</p>
+            <p class="rate-content">{{item.outerRate}}</p>
           </div>
           <div class="rate-item">
             <p class="rate-title">结算</p>
-            <p class="rate-content">{{item.number}}/笔</p>
+            <p class="rate-content">{{item.fixedRate/100}}/笔</p>
           </div>
           <div class="rate-item">
             <p class="rate-title">额度</p>
-            <p class="rate-content">{{item.limit}}元</p>
+            <p class="rate-content">{{item.amountMin/100}}~{{item.amountMax/100}}元</p>
           </div>
         </div>
       </div>
@@ -35,13 +35,24 @@
     },
     data(){
       return {
-        feeList:[
-          {img:require("./img/weixin.png"),paytype:'weixin',explain:'微信小额D0实时到账（8:00～22:00）',rate:'0.38%',number:'10',limit:'2000'},
-          {img:require("./img/yinlian.png"),paytype:'yinlian',explain:'银联小额D0实时到账（8:00～22:00）',rate:'0.38%',number:'10',limit:'2000'},
-          {img:require("./img/zhifub.png"),paytype:'zhifub',explain:'支付宝小额D0实时到账（8:00～22:00）',rate:'0.38%',number:'10',limit:'2000'},
-          {img:require("./img/qq.png"),paytype:'qq',explain:'QQ小额D0实时到账（8:00～22:00）',rate:'0.38%',number:'10',limit:'2000'},
-          {img:require("./img/jingdong.png"),paytype:'jingdong',explain:'京东小额D0实时到账（8:00～22:00）',rate:'0.38%',number:'10',limit:'2000'}
-        ]
+        feeList:null
+      }
+    },
+    mounted(){
+      this._init();
+    },
+    methods:{
+      _init(){
+        this.axios({
+          method:'post',
+          url:'/qrpay.open/site_pmt_chnl/rate_list?t='+ new Date().getTime()
+        }).then( res =>{
+          res = res.data;
+          if(res.result){
+            this.feeList = res.result;
+          }
+
+        })
       }
     }
   };

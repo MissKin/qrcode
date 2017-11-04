@@ -20,6 +20,8 @@
     endDate:'',//查询结束时间
     balance:{},//余额
     withdraw:{},//分润余额提现
+    payinfo:null,//选择支付类型
+    ccBankCardId:null,//还卡银行卡的id
 
   }
 

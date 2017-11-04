@@ -1,6 +1,7 @@
 <template>
   <div class="gradient-green c-header">
   <div class="c-back" v-if="goBack" @click="$router.go(-1)"><i class="icon-backicon"></i></div>
+  <div class="c-back" v-if="goToBack" @click="back_fn"><i class="icon-backicon"></i></div>
   <div class="c-header-text" v-show=" msg">{{msg}}</div>
   <div class="search-box-input" v-show="search">
     <input type="text" v-on:input="$emit('input',$event.target.value)" :value="searchValue" class="search-input"
@@ -20,10 +21,17 @@ export default {
       searchValue:'',
     }
   },
-  props:['msg','leftmsg','goBack','search'],
+  props:['msg','leftmsg','goBack','search','goToBack'],
   methods:{
     leftFun(){
       this.$emit('leftFun')
+    },
+    //返回按钮的事件
+    /*
+    *
+    * */
+    back_fn(){
+      this.$emit('backFun')
     }
   }
 
@@ -70,6 +78,7 @@ export default {
     padding-left: 20px;
     display: inline-block;
     text-align: center;
+    font-size: 16px;
   }
   .search-box-input{
     position: absolute;

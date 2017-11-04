@@ -12,15 +12,13 @@ var webpack = require('webpack')
 var proxyMiddleware = require('http-proxy-middleware')
 
 var proxyOptions = {
-  target: 'http://wallet.wallet:8080', // target host
+  target: 'https://product.willpayment.com', // target host
   changeOrigin: true,               // needed for virtual hosted sites
   ws: true,                         // proxy websockets
-  pathRewrite: {
-    '^/qrpay.open' : ''     // rewrite path
-  }
 };
+
 var server = express()
-    server.use('/qrpay.open',proxyMiddleware(proxyOptions));
+//server.use('/qrpay.open',proxyMiddleware(proxyOptions));
 
 
 var webpackConfig = process.env.NODE_ENV === 'testing'

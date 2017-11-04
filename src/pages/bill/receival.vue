@@ -43,7 +43,7 @@
         this.axios.get('/qrpay.open/mch_trade/trade_list',{params:{}})
           .then( response => {
             this.receivalList = response.data.result;
-            console.log(response.data)
+            console.log('receival'+response.data)
           })
           .catch( err => {
             console.log('出错了说！')
@@ -51,7 +51,7 @@
       }
     },
     mounted(){
-      this.$store.dispatch('GET_RECEVAL',{startDate: this.startDate, endDate:this.endDate, pageSize : 20})
+      this.$store.dispatch('GET_RECEVAL',{startDate: this.startDate, endDate:this.endDate, pageSize : 20});
      /* this._init();*/
     }
   };

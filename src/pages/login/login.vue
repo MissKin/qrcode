@@ -1,19 +1,19 @@
 <template>
   <div class="login">
-    <div class="loginheader">
+    <!--<div class="loginheader">
       <img src="./img/msflogo2.png" class="logoimg"/>
-    </div>
+    </div>-->
+    <v-header msg="登录" goBack="true"></v-header>
     <div class="userinfo-wrapper">
-
       <div class="username input-border-bottom">
           <i class="icon icon-phone"></i>
           <input type="tel" class="inputInfo" name="phone" v-model="phone" placeholder="请输入手机号" >
-          <i class="icon-clear" ></i>
+          <i class="icon-clear" @click="clearInput('phone')" ></i>
         </div>
         <div class="username input-border-bottom">
           <i class="icon icon-lock"></i>
           <input type="password" class="inputInfo" name="password" v-model="password" placeholder="请输入密码">
-          <i class="icon-clear" ></i>
+          <i class="icon-clear" @click="clearInput('password')"></i>
         </div>
         <p class="" >
           <router-link class="small-font-green" to="/getpassword">忘记密码？</router-link>
@@ -28,12 +28,13 @@
 
 <script>
   import vButton from '@/components/componentsmore/button.vue'
+  import vHeader from '@/components/componentsmore/vheader.vue'
   import {login} from 'api/getdata.js'
 export default {
   name: 'login',
   data () {
     return {
-      phone:'18457118763',//手机号注册
+      phone:'15606817110',//手机号注册15606817110,,17682325473
       password: '123456',//密码
       loginIp:null,
       price:5,
@@ -41,10 +42,16 @@ export default {
   },
   methods:{
     userLogin(){
-      this.axios.get('/qrpay.open/mch/login',
-        {params:{phone:this.phone,password:this.password,loginIp:'192.168.2.11'}}
-      )
-      .then( response => {
+     this.axios({
+       methods:'get',
+       url:'/qrpay.open/mch/login',
+       params:{phone:this.phone,password:this.password,loginIp:'192.168.2.11'},
+       withCredentials:true,
+     }).then(response => {
+        console.log(response.headers);
+        console.log(response.headers['Set-Cookie']);
+        console.log(response.headers['transfer-encoding']);
+
         response = response.data;
         console.log(response);
         // 传给state
@@ -53,18 +60,35 @@ export default {
           alert(response.message); return;
         }
         if(response.message == '登录成功'){
-          console.log('登录成功')
+         /* this.$dialog(true,'登录成功');*/
           this.$router.push('/wallet')
+        }else {
+          this.$loading();
         }
-
       },function (err) {
         console.log('错误');
-      })
+      });
+     //隐藏弹窗
+      setTimeout(function(){
+        $loading.end();
+      },2000)
     },
+    clearInput(obj){
+      var val = obj;
+      console.dir(val);
+      switch (val){
+        case 'phone': this.phone = '';break;
+        case 'password': this.password = '';break;
+        default: break;
+      }
+    },
+    test(){
+      this.$store.commit('BANKCARDID',123);
+      console.log( this.$store.state.ccBankCardId)
+    }
 
   },
-  computed:{
-  }
+  components:{vHeader}
 }
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -4,7 +4,7 @@
     <div class="contents-wrapper scroll-wrapper">
       <div class="my-back-card" v-for="bank in bankcards.list" v-show="bankcards.list.length > 0">
         <div class="card-left">
-          <img src="../img/photo1.png" alt="">
+          <img :src="bank.iconPath" alt="">
         </div>
         <div class="card-right">
           <h3>{{bank.bankName}}</h3>
@@ -13,7 +13,7 @@
         </div>
         <div class="bank-del" @click="deleteBank(bank.mchBankCardId)" >删除</div>
       </div>
-      {{user_id}}
+      {{payinfo}}
       <router-link :to="{name: 'bankcardsadd'}"  tag="a" class="next-add" href="bankCardAdd.html">+ 添加银行卡</router-link>
     </div>
     <transition name="router-slid" mode="out-in" >
@@ -36,32 +36,21 @@
     },
     methods: {
       deleteBank(objId){
-        alert(456)
-        this.axios.get('/qrpay.open/mch/del_bank_card',{params:{mchBankCardId:objId}})
-          .then( response => {
-            response = response.data;
-            console.log(response.result)
-          })
-        console.log(objId);
+        let conf = confirm('确定删除');
+        if(conf){
+          this.axios.get('/qrpay.open/mch/del_bank_card',{params:{mchBankCardId:objId}})
+            .then( response => {
+              response = response.data;
+              console.log(response.result)
+              console.log(objId);
+            })
+        }
       },
-      _init(){
-        alert(456)
-        this.axios.get('/qrpay.open/mch/show_bank_card')
-          .then( response => {
-            console.log(response.data);
-           /* this.$nextTick( function(){
-              this.bankList = response.data.result;
-            })*/
-          })
-          .catch(err => {
-            console.log(err)
-          })
-      }
     },
     computed:{
         ...mapState(['bankcards']),
-      user_id(){
-          this.$store.state.user_id;
+      payinfo(){
+          this.$store.state.payinfo;
       }
     },
     mounted(){

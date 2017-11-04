@@ -2,41 +2,49 @@
 <div class="authent-name">
   <v-header goBack="true" msg="实名认证"></v-header>
   <div class="content-wrapper">
-    <notice-yellow text="友情提示：只有通过实名认证才能有效收款使用"></notice-yellow>
-    <div class="phone-text">当前账户：{{loginId}}</div>
+    <notice-yellow :text="noticeText"></notice-yellow>
+    <div class="phone-text">当前账户：{{phoneId}}</div>
     <form-input title="推荐人号码" input_type="text" v-model="recommandPhone"  place_str="推荐人手机号码（选填）"></form-input>
     <form-input title="姓名" input_type="text" v-model="realname"  place_str="输入真实姓名"></form-input>
     <form-input title="身份证" input_type="text" v-model="idCardNo"  place_str="输入本人身份证"></form-input>
-    <div class="input-box" @click="bankShow=true">
+    <div class="input-box" @click="show_bank('bank')">
       <span class="title">开户银行</span><p class="text">{{bankName?bankName:'开户银行'}}</p>
     </div>
-    <div class="input-box" @click="addChose"><span class="title">开户地点</span>
+    <div class="input-box" @click="showSelect"><span class="title">开户地点</span>
       <p class="text">{{City ? Province.regionName + City.regionName :'开户地点'}}
     </p> </div>
-    <div  class="input-box" @click="netShow = true">
+    <div  class="input-box" @click="show_bank('net')">
       <span class="title">银行网点</span>
       <p class="text">{{bankNameAbbr ? bankNameAbbr :'选择银行网点'}}</p>
     </div>
     <form-input title="银行卡号" input_type="text" v-model="bankCardNo"   place_str="输入银行卡号"></form-input>
     <form-input title="预留号码" input_type="tel" v-model="phone"  place_str="输入银行预留手机号"></form-input>
     <form-input-timer ref="forminputtimer" title="验证码" v-model="checkCode" place_str="输入验证码" :disableded="disableded" v-on:run="sendCode"></form-input-timer>
-    <div class="btn btn-bg-green next-btn"@click="saveSettleBankCard" >下一步</div>
+
+    <input type="hidden" name="mchBankCardId" id="mchBankCardId" :value="code"/>
+
+    <div class="btn btn-bg-green next-btn"@click="saveSettleBankCard('change')" >下一步</div>
     <show-alert :showAlert="showAlert" :alertText="alertText" :alertSuccess="alertSuccess"></show-alert>
     <!--银行搜索-->
     <transition name="router-slid" mode="out-in" >
       <div class="search-wrapper" v-show="bankShow">
-        <v-header goBack="true" search="true" v-model="searchValue" leftmsg="搜索" @leftFun="searchBank"></v-header>
+        <v-header goToBack="true" @backFun="backFun" search="true" v-model="searchValue" leftmsg="搜索" v-if="bankSearchShow"
+                  @leftFun="get_bank"></v-header>
+        <v-header goToBack="true" search="true" v-model="searchValue" leftmsg="搜索" v-else
+                  @leftFun="searchBankNet"></v-header>
         <div class="notice">迷糊匹配，如“工商、农业、建设”银行等……</div>
-        <ul class="search-box" @click="selectBank($event)">
+        <ul class="search-box" @click="selectBank($event)" v-if="bankSearchShow">
           <li class="result-item" v-for="bank in bankList" :name="bank.bankCode">{{bank.bankName}}</li>
+        </ul>
+        <ul class="search-box" v-else>
+          <li class="result-item" v-for="bank in bankNetList" @click="selectNet($event)">{{bank.bankNameAbbr}}</li>
         </ul>
       </div>
     </transition>
-
     <!--居住地址三级联动选项-->
     <transition name="bottomIn-fade" >
       <section class="showChose" v-show="showChose">
-        <select name="" id="Provice" @change="getProvince($event)" v-model="Province">
+        <select name="" id="Provice" @change="get_province()" v-model="Province">
           <option v-for="v in provinceList" :value="v" >{{ Province =='null' ?'' : v.regionName}}
           </option>
         </select>
@@ -45,22 +53,10 @@
         </select>
       </section>
     </transition>
-
-    <!--银行网点搜索-->
-    <transition name="router-slid" mode="out-in" >
-      <div class="search-wrapper" v-show="netShow">
-        <v-header goBack="true" search="true" v-model="searchValue" leftmsg="搜索" @leftFun="searchBankNet"></v-header>
-        <div class="notice">迷糊匹配，如“工商、农业、建设”银行等……</div>
-        <ul class="search-box" >
-          <li class="result-item" v-for="bank in bankNetList" @click="selectNet($event)">{{bank.bankNameAbbr}}</li>
-        </ul>
-      </div>
-    </transition>
-
     <!--上传图片-->
 
     <transition name="router-slid" mode="out-in"  >
-      <div class="uploadPhoto-wrapper" >
+      <div class="uploadPhoto-wrapper" v-show="showUploadPhoto">
         <v-header goBack="true" msg="上传照片"></v-header>
       <div class="content-wrapper">
         <div class="photos-wrapper">
@@ -117,6 +113,7 @@
         <div class="btn btn-bg-green next-btn" @click="saveIdentify" >提交</div>
         <a class="btn green_emptyBtn next-btn" style="display: block;" href="picExample.html">图片示例</a>
       </div>
+        <input type="hidden" id="isUpdating" name="isUpdating" :value="isUpdating" />
         {{fileshowImg1}}
     </div>
     </transition>
@@ -141,20 +138,15 @@
       formInputTimer,
       showAlert,
     },
-    beforeRouteEnter(to, from, next){
-      next(vm=>{
-        console.log('组件路由勾子beforeRouteEnter的next')
-        console.log(vm.phone)
-      })
-    },
     data(){
       return {
+        noticeText:'友情提示：只有通过实名认证才能有效收款使用',//提示
         searchValue:'银行',//搜索框中的值
         bankList:[],//搜索出来的银行名称
         bankNetList:[],//搜索出来的银行网点
         phone:'15757185394',//银行预留手机号
         bankCardNo:'',
-        loginId:'',//当前账户
+        phoneId:'',//当前账户
         showCity:false,//显示城市
         showDistrict:false,//显示区
         Province:null, //省的值
@@ -163,7 +155,7 @@
         cityList:null,//城市的所有值
         districtList:null,//区的所有值
         showChose:false,//是否显示省市区的
-        recommandPhone:'',//推荐人号码
+        recommandPhone:'没有推荐',//推荐人号码
         realname:'',//姓名
         idCardNo:'',//身份证号
         checkCode:'',//验证码
@@ -181,15 +173,31 @@
         fileshowImg3:null,//第三张
         fileshowImg4:null,//第四张
         fileImgList:[],
+        showUploadPhoto:false,//显示照片选择器
+        code:null,
+        isUpdating:false,
+        bankSearchShow:true,
       }
     },
     created(){
-      this.loginId = getStore('loginId');
+    /*  this.loginId = getStore('loginId');*/
+    },
+    mounted(){
+      this._init();
     },
     watch:{
         showAlert:'hiddenAlert',
     },
     methods:{
+      //搜索页面的返回按钮,表示隐藏当前页面
+      backFun(){
+        this.bankShow =false;
+      },
+      //显示银行卡搜索
+      show_bank(type){
+        this.bankShow =true;
+        type == 'bank' ? this.bankSearchShow = true: this.bankSearchShow = false;
+      },
       hiddenAlert(){
         setTimeout(()=>{
           this.showAlert = false;
@@ -215,17 +223,17 @@
         }
         this.$refs.forminputtimer.start()
       },
-      jumpPage(page){
-        this.$router.push('/NameAuthentication/'+page);
-      },
       getProvince($event){
         if(!this.Province){
             return;
         }else{
           var regionId = this.Province.regionId;
+          console.log('regionId: '+regionId)
         }
         if(regionId){
-          this.$http.post('/qrpay.open/mch/get_region?parentId='+ regionId )
+          this.$http({
+            methods:'post',
+            url:'/qrpay.open/mch/get_region?parentId='+ regionId+'v='+new Date().getTime() })
             .then( response => {
               response= response.body;
               this.cityList = response.result;
@@ -239,6 +247,69 @@
         }
         removeStore('bankNameAbbr')
       },
+      _init(){
+        this._load()},
+      _load(){
+        this.axios({
+          method:'post',
+          url:'/qrpay.open/mch/to_identify'
+        }).then( res => {
+          res = res.data;
+          let status = res.result.mchOpenDTO.status;
+          let havingPhoto = res.result.havingPhoto;
+          console.dir('status:'+status);
+          if(!havingPhoto || status == 0){
+            this.phoneId = res.result.mchOpenDTO.phone;
+            this.recommandPhone = res.result.mchOpenDTO.inviterPhone;
+            this.get_bank();
+            this.get_region();
+            if (status == 0) {
+              this.noticeText = '认证失败'+res.result.mchOpenDTO.auditOpinion;
+              this.isUpdating = true
+             this.showUploadPhoto = true;
+            }
+          }else if (havingPhoto && status == 2) {
+            alert("实名认证审核中");
+            this.$router.push('/wallet');
+          } else if (havingPhoto && status == 1) {
+            alert("实名认证审核通过");
+            this.$router.push('/wallet');
+          }
+        })
+      },
+      get_region(parentId){
+        this.axios({
+          method:'get',
+          url:'/qrpay.open/mch/get_region',
+          params:{
+            parentId: parentId
+          }
+        }).then( response => {
+          response = response.data;
+          if(null == parentId ){
+            //console.log('省')
+           // this.showChose = true;
+            this.provinceList = response.result;
+          }else {
+           // console.log('市')
+            this.cityList = response.result;
+            console.log('this.cityList: '+this.cityList)
+            //this.showChose = false;
+          }
+        })
+      },
+      get_province(parentId){
+        if(this.Province){
+          let parentIds = this.Province.regionId;
+          console.log('省级操作' + parentIds)
+          this.get_region(parentIds)
+        }else {
+          return;
+        }
+      },
+      showSelect(){
+        this.showChose = true;
+      },
       getCity($event){
         if(!this.City){
           return;
@@ -247,17 +318,9 @@
           this.showChose = false;
         }
       },
-      addChose(){
-        this.$http.post('/qrpay.open/mch/get_region',{})
-          .then((response) => {
-            response = response.body;
-            this.showChose = true;
-            this.provinceList = response.result;
-          })
-      },
-      searchBank(){
+      get_bank(){
         if(this.searchValue === ''){
-          console.log('请输入信息')
+          alert('请输入信息')
           return;
         } else{
           get_bank(this,{bankName:this.searchValue})
@@ -275,6 +338,7 @@
         this.bankCode = $(target).attr('name');
         this.bankName = $(target).text();
         this.bankShow = false;
+        this.bankNameAbbr = '';//重新设置银行网点
       },
       searchBankNet(){
         get_cnaps_bank(this,{params:{cityCode:this.cityCode,bankCode:this.bankCode,bankName:this.searchValue}})
@@ -288,10 +352,37 @@
         this.bankNameAbbr = $(target).text();
         this.netShow = false;
       },
-      saveSettleBankCard(){
-        if(this.realname !=""&&this.idCardNo!=''&&this.getbankName!=''&&this.City.regionName&&this.Province.regionName&&this.getbankNameAbbr!=''&&this.bankCardNo!=''&&this.phone!=''&&this.checkCode!=''){
-          console.log('all');
-          this.$http.post('/qrpay.open/mch/save_settle_bank_card',{params:{
+      saveSettleBankCard(type){
+        if(null == this.realname || this.realname == ""){
+          alert('请输入真实姓名');return;
+        }
+        if(null == this.idCardNo || this.idCardNo == "" || this.idCardNo.length != 18){
+          alert('身份证格式错误');return;
+        }
+        if(null == this.bankName || this.bankName == ""){
+          alert('请选择开户银行');return;
+        }
+        if(null == this.City.regionName || this.City.regionName == ""){
+          alert('请选择开户地点');return;
+        }
+        if(null == this.getbankNameAbbr || this.getbankNameAbbr == ""){
+          alert('请选择银行网点');return;
+        }
+        if(null == this.bankCardNo || this.bankCardNo == ""){
+          alert('请输入银行卡号');return;
+        }
+        if(null == this.phone || this.phone == ""|| this.phone.length != 11){
+          alert("预留手机号码格式错误");
+          return;
+        }
+        if(null == this.checkCode || this.checkCode ==""|| this.checkCode.length != 6){
+          alert("请输入6位验证码");
+          return;
+        }
+        this.axios({
+          method: "post",
+          url:'/qrpay.open/mch/save_settle_bank_card',
+          data:{
             idName:this.realname,
             idCardNo:this.idCardNo,
             bankName:this.getbankName,
@@ -302,23 +393,21 @@
             mobile:this.phone,
             checkCode:this.checkCode,
             checkType:5
-          }}).then( (response)=>{
-            response = response.body;
-            let result = response.result;
-            let message = response.message;
-            if(result){
-              console.log('成功保存')
+          }
+        }).then( res => {
+          res = res.data;
+          if(res.result){
+            if(type == 'change'){
+              this.$route.push('/wallet')
             }else{
-              console.log(result.message)
+              this.code = res.code;
+              this.showUploadPhoto= true;
             }
-          },response => {
-            console.log('错误了1222')
-          })
-        }else{
-          this.showAlert = true;//显示弹窗
-          this.alertText = '请填写完整';
-          this.alertSuccess = false; //错误类的弹窗
-        }
+          }else{
+            alert(res.message)
+          }
+        })
+
       },
       getFileChange(e,objId){
         var list = [];
@@ -482,7 +571,7 @@
     width: 100%;
     height: 100%;
     background: #F2F2F2;
-    display: none;
+    /*display: none;*/
     transition: all 0.5s;
   }
   .photos-wrapper{
